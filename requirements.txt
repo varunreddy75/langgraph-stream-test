@@ -1,7 +1,5 @@
 fastapi
 uvicorn
-streamlit
-requests
 langgraph
 langchain-groq
 python-dotenv
