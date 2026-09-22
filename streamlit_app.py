@@ -16,20 +16,23 @@ if st.button("Generate"):
         st.warning("Please enter a prompt")
         st.stop()
 
-    with st.spinner("Generating..."):
+    try:
+        with st.spinner("Generating..."):
 
-        response = requests.post(
-            "http://localhost:8000/generate",
-            json={
-                "prompt": prompt
-            },
-            timeout=300
-        )
+            response = requests.post(
+                "http://127.0.0.1:8000/generate",
+                json={
+                    "prompt": prompt
+                },
+                timeout=300
+            )
 
-        response.raise_for_status()
+            response.raise_for_status()
 
-        data = response.json()
+            data = response.json()
 
-    st.subheader("Response")
+        st.subheader("Response")
+        st.write(data["generated_text"])
 
-    st.write(data["generated_text"])
+    except requests.exceptions.RequestException as e:
+        st.error(f"API Error: {e}")
