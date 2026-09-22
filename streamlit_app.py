@@ -17,22 +17,31 @@ if st.button("Generate"):
         st.stop()
 
     try:
-        with st.spinner("Generating..."):
 
-            response = requests.post(
-                "http://127.0.0.1:8000/generate",
-                json={
-                    "prompt": prompt
-                },
-                timeout=300
-            )
+        st.subheader("Response")
+
+        placeholder = st.empty()
+
+        accumulated_text = ""
+
+        with requests.post(
+            "http://127.0.0.1:8000/generate",
+            json={
+                "prompt": prompt
+            },
+            stream=True,
+            timeout=300
+        ) as response:
 
             response.raise_for_status()
 
-            data = response.json()
-
-        st.subheader("Response")
-        st.write(data["generated_text"])
+            for chunk in response.iter_content(
+                chunk_size=None,
+                decode_unicode=True
+            ):
+                if chunk:
+                    accumulated_text += chunk
+                    placeholder.markdown(accumulated_text)
 
     except requests.exceptions.RequestException as e:
         st.error(f"API Error: {e}")

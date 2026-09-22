@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from langgraph.graph import StateGraph, START, END
 from langchain_groq import ChatGroq
+from fastapi.responses import StreamingResponse
 
 load_dotenv()
 
@@ -85,17 +86,21 @@ def health():
     return {"status": "running"}
 
 
+
+
+
 @app.post("/generate")
 def generate(req: PromptRequest):
 
-    result = graph.invoke(
-        {
-            "prompt": req.prompt,
-            "generated_text": ""
-        }
-    )
+    def token_stream():
 
-    return {
-        "prompt": req.prompt,
-        "generated_text": result["generated_text"]
-    }
+        for chunk in llm.stream(
+            f"Write a detailed paragraph of approximately 500 words about {req.prompt}. Do not use bullet points or headings."
+        ):
+            if chunk.content:
+                yield chunk.content
+
+    return StreamingResponse(
+        token_stream(),
+        media_type="text/plain"
+    )
