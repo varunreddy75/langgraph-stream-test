@@ -49,7 +49,7 @@ def generate_text(state: State):
     print("\n--- STREAM START ---\n")
 
     for chunk in llm.stream(
-        f"Write exactly 10 lines about {state['prompt']}"
+        f"Write exactly 100 lines about {state['prompt']}"
     ):
         if chunk.content:
             print(chunk.content, end="", flush=True)
